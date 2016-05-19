@@ -3,6 +3,8 @@
 #include "MeanShift.h"
 
 #define EPSILON 0.0000001
+#define GROUP_DISTANCE_TOLERANCE 0.1 
+#define MAXIMUM_DISTANCE 100000000
 
 double euclidean_distance(const vector<double> &point_a, const vector<double> &point_b){
     double total = 0;
@@ -15,6 +17,37 @@ double euclidean_distance(const vector<double> &point_a, const vector<double> &p
 double gaussian_kernel(double distance, double kernel_bandwidth){
     double temp =  exp(-(distance*distance) / (kernel_bandwidth));
     return temp;
+}
+
+// To grouping the final results of the meanshift
+// input: the results of the shifted points
+// output: A vector of the labels of the shifted points
+
+vector<int > group_points(vector<vector<double> > points){
+    vector<vector<double> > temp_points; //save the points for the peak
+    vector<int> indx_points;
+    //search for all points
+    for (int i = 0; i < points.size();i++){
+        //compared points with points in the temp list
+	double min_distance = GROUP_DISTANCE_TOLERANCE;
+        int min_index = -1;	
+	for (int j = 0; j < temp_points.size(); j++){
+	    double dist = euclidean_distance(points[i], temp_points[j]);
+	    if (dist < min_distance){
+		    min_distance = dist;
+	    	    min_index = j;
+	    }
+	}
+	//if depends on the index,
+	if (min_index != -1){
+          indx_points.push_back(min_index);  
+	}
+	else{//added to the new temp_points
+	   indx_points.push_back(temp_points.size()+1);
+           temp_points.push_back(points[i]);
+	}
+    }	
+    return indx_points;
 }
 
 void MeanShift::set_kernel( double (*_kernel_func)(double,double) ) {
@@ -47,7 +80,7 @@ vector<double> MeanShift::shift_point(const vector<double> &point, const vector<
     return shifted_point;
 }
 
-vector<vector<double> > MeanShift::cluster(vector<vector<double> > points, double kernel_bandwidth){
+vector<int > MeanShift::cluster(vector<vector<double> > points, double kernel_bandwidth){
     vector<bool> stop_moving;
     stop_moving.reserve(points.size());
     vector<vector<double> > shifted_points = points;
@@ -69,5 +102,7 @@ vector<vector<double> > MeanShift::cluster(vector<vector<double> > points, doubl
         }
         printf("max_shift_distance: %f\n", max_shift_distance);
     } while (max_shift_distance > EPSILON);
-    return shifted_points;
+    vector<int> labels = group_points(shifted_points);
+    return labels;
 }
+
