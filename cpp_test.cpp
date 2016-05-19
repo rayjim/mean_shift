@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     double kernel_bandwidth = 3;
 
     vector<vector<double> > points = load_points("test.csv");
-    vector<vector<double> > shifted_points = msp->cluster(points, kernel_bandwidth);
+    vector<int> shifted_points = msp->cluster(points, kernel_bandwidth);
 
     FILE *fp = fopen("result.csv", "w");
     if(!fp){
@@ -53,12 +53,13 @@ int main(int argc, char **argv)
         exit(0);
     }
     for(int i=0; i<shifted_points.size(); i++){
-        for(int dim = 0; dim<shifted_points[i].size(); dim++) {
-            printf("%f ", shifted_points[i][dim]);
-            fprintf(fp, dim?",%f":"%f", shifted_points[i][dim]);
-        }
+       // for(int dim = 0; dim<shifted_points[i].size(); dim++) {
+       printf("%d ", shifted_points[i]);
+            //fprintf(fp, dim?",%f":"%f", shifted_points[i][dim]);
+	    
+        //}
         printf("\n");
-        fprintf(fp, "\n");
+        //fprintf(fp, "\n");
     }
     fclose(fp);
     return 0;
