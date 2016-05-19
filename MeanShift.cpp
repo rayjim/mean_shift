@@ -3,6 +3,7 @@
 #include "MeanShift.h"
 
 #define EPSILON 0.0000001
+#define GROUP_DISTANCE_TOLERANCE 0.1 
 
 double euclidean_distance(const vector<double> &point_a, const vector<double> &point_b){
     double total = 0;
@@ -71,3 +72,9 @@ vector<vector<double> > MeanShift::cluster(vector<vector<double> > points, doubl
     } while (max_shift_distance > EPSILON);
     return shifted_points;
 }
+
+
+
+
+
+
